@@ -1,0 +1,20 @@
+{
+    "version": 12,
+    "configurePresets": [
+        {
+            "name": "default"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default",
+            "configurePreset": "default"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "default",
+            "configurePreset": "default"
+        }
+    ]
+}
