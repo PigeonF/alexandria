@@ -8,9 +8,9 @@ project(
 enable_testing()
 
 add_test(
-    NAME adder.shared
+    NAME adder.shared.debug
     COMMAND "${CMAKE_COMMAND}" -E env "CC=$ENV{CC}" "CXX=$ENV{CXX}"
-        "${CMAKE_CTEST_COMMAND}" -C "$<CONFIG>"
+        "${CMAKE_CTEST_COMMAND}" -C Debug
         --verbose
         --build-and-test "${PROJECT_SOURCE_DIR}/adder" "${PROJECT_BINARY_DIR}/adder.shared"
         --build-generator "${CMAKE_GENERATOR}"
@@ -21,16 +21,36 @@ add_test(
             -D "CMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/install"
             -D "BUILD_SHARED_LIBS=ON"
         --build-target install
-        --test-command "${CMAKE_CTEST_COMMAND}" -C "$<CONFIG>"
+        --test-command "${CMAKE_CTEST_COMMAND}" -C Debug
 )
-set_tests_properties(adder.shared PROPERTIES
+set_tests_properties(adder.shared.debug PROPERTIES
   FIXTURES_SETUP adder.shared.install
 )
 
 add_test(
-    NAME adder.static
+    NAME adder.shared.release
     COMMAND "${CMAKE_COMMAND}" -E env "CC=$ENV{CC}" "CXX=$ENV{CXX}"
-        "${CMAKE_CTEST_COMMAND}" -C "$<CONFIG>"
+        "${CMAKE_CTEST_COMMAND}" -C Release
+        --verbose
+        --build-and-test "${PROJECT_SOURCE_DIR}/adder" "${PROJECT_BINARY_DIR}/adder.shared"
+        --build-generator "${CMAKE_GENERATOR}"
+        --build-two-config
+        --build-options
+            "--presets-file=${PROJECT_SOURCE_DIR}/adder/CMakePresets.json"
+            --preset=default
+            -D "CMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/install"
+            -D "BUILD_SHARED_LIBS=ON"
+        --build-target install
+        --test-command "${CMAKE_CTEST_COMMAND}" -C Release
+)
+set_tests_properties(adder.shared.release PROPERTIES
+  FIXTURES_SETUP adder.shared.install
+)
+
+add_test(
+    NAME adder.static.debug
+    COMMAND "${CMAKE_COMMAND}" -E env "CC=$ENV{CC}" "CXX=$ENV{CXX}"
+        "${CMAKE_CTEST_COMMAND}" -C Debug
         --verbose
         --build-and-test "${PROJECT_SOURCE_DIR}/adder" "${PROJECT_BINARY_DIR}/adder.static"
         --build-generator "${CMAKE_GENERATOR}"
@@ -40,9 +60,28 @@ add_test(
             --preset=default
             "-DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/install"
         --build-target install
-        --test-command "${CMAKE_CTEST_COMMAND}" -C "$<CONFIG>"
+        --test-command "${CMAKE_CTEST_COMMAND}" -C Debug
 )
-set_tests_properties(adder.static PROPERTIES
+set_tests_properties(adder.static.debug PROPERTIES
+  FIXTURES_SETUP adder.static.install
+)
+
+add_test(
+    NAME adder.static.release
+    COMMAND "${CMAKE_COMMAND}" -E env "CC=$ENV{CC}" "CXX=$ENV{CXX}"
+        "${CMAKE_CTEST_COMMAND}" -C Release
+        --verbose
+        --build-and-test "${PROJECT_SOURCE_DIR}/adder" "${PROJECT_BINARY_DIR}/adder.static"
+        --build-generator "${CMAKE_GENERATOR}"
+        --build-two-config
+        --build-options
+            "--presets-file=${PROJECT_SOURCE_DIR}/adder/CMakePresets.json"
+            --preset=default
+            "-DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/install"
+        --build-target install
+        --test-command "${CMAKE_CTEST_COMMAND}" -C Release
+)
+set_tests_properties(adder.static.release PROPERTIES
   FIXTURES_SETUP adder.static.install
 )
 
@@ -166,4 +205,39 @@ add_test(
         --test-command "${CMAKE_CTEST_COMMAND}" -C "$<CONFIG>"
 )
 
-# TODO(PigeonF): pkgconfig, CommonPackageSpecification, SBOM
+add_test(
+    NAME consumer.pkgconfig.shared
+    COMMAND "${CMAKE_COMMAND}" -E env "CC=$ENV{CC}" "CXX=$ENV{CXX}"
+        "${CMAKE_CTEST_COMMAND}" -C "$<CONFIG>"
+        --verbose
+        --build-and-test "${PROJECT_SOURCE_DIR}/consumer" "${PROJECT_BINARY_DIR}/consumer.pkgconfig.shared"
+        --build-generator "${CMAKE_GENERATOR}"
+        --build-two-config
+        --build-options
+            -D "BUILD_SHARED_LIBS=ON"
+            -D "CMAKE_PROJECT_consumer_INCLUDE=${PROJECT_SOURCE_DIR}/consumer/cmake/PkgConfig.cmake"
+            -D "CMAKE_PKG_CONFIG_PC_LIB_DIRS=${PROJECT_BINARY_DIR}/install/lib/pkgconfig"
+        --test-command "${CMAKE_CTEST_COMMAND}" -C "$<CONFIG>"
+)
+set_tests_properties(consumer.pkgconfig.shared PROPERTIES
+    FIXTURES_REQUIRED adder.shared.install
+)
+
+add_test(
+    NAME consumer.pkgconfig.static
+    COMMAND "${CMAKE_COMMAND}" -E env "CC=$ENV{CC}" "CXX=$ENV{CXX}"
+        "${CMAKE_CTEST_COMMAND}" -C "$<CONFIG>"
+        --verbose
+        --build-and-test "${PROJECT_SOURCE_DIR}/consumer" "${PROJECT_BINARY_DIR}/consumer.pkgconfig.static"
+        --build-generator "${CMAKE_GENERATOR}"
+        --build-two-config
+        --build-options
+            -D "CMAKE_PROJECT_consumer_INCLUDE=${PROJECT_SOURCE_DIR}/consumer/cmake/PkgConfig.cmake"
+            -D "CMAKE_PKG_CONFIG_PC_LIB_DIRS=${PROJECT_BINARY_DIR}/install/lib/pkgconfig"
+        --test-command "${CMAKE_CTEST_COMMAND}" -C "$<CONFIG>"
+)
+set_tests_properties(consumer.pkgconfig.static PROPERTIES
+    FIXTURES_REQUIRED adder.static.install
+)
+
+# TODO(PigeonF): CommonPackageSpecification, SBOM

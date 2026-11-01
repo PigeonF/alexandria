@@ -8,7 +8,7 @@ defualt: test
 
 .PHONY: configure
 configure:
-	cmake -E env CC="$(CC)" CXX="$(CXX)" cmake -S adder -B build -G "Ninja Multi-Config" -D BUILD_SHARED_LIBS=ON --presets-file=adder/CMakePresets.json --preset=default
+	cmake -E env CC="$(CC)" CXX="$(CXX)" cmake -S adder -B build -G "Ninja Multi-Config" -D "CMAKE_INSTALL_PREFIX=./build/install" -D BUILD_SHARED_LIBS=ON --presets-file=adder/CMakePresets.json --preset=default
 
 .PHONY: configure-e2e
 configure-e2e:

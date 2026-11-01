@@ -15,10 +15,10 @@
 
 #if !defined(ADDER_EXPORT)
 #  if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
-#    if defined(ADDER_SHARED_LIBRARY)
-#      define ADDER_EXPORT __declspec(dllimport)
-#    elif defined(ADDER_BUILD_SHARED_LIBRARY)
+#    if defined(ADDER_BUILD_SHARED_LIBRARY)
 #      define ADDER_EXPORT __declspec(dllexport)
+#    elif defined(ADDER_SHARED_LIBRARY)
+#      define ADDER_EXPORT __declspec(dllimport)
 #    else
 #      define ADDER_EXPORT
 #    endif

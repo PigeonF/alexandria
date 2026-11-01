@@ -13,6 +13,6 @@ add_test(
 if(WIN32 AND BUILD_SHARED_LIBS)
     set_property(TEST adder::tests::adder PROPERTY
         ENVIRONMENT_MODIFICATION
-            "PATH=path_list_append:$<TARGET_FILE_DIR:adder::adder>"
+            "$<LIST:TRANSFORM,$<TARGET_RUNTIME_DLL_DIRS:adder_tests_adder>,PREPEND,PATH=path_list_append:>"
     )
 endif()

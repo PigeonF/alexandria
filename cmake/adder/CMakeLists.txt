@@ -17,6 +17,16 @@ include(GNUInstallDirs)
 
 enable_testing()
 
+configure_file(cmake/pkgconfig.pc.in "${CMAKE_CURRENT_BINARY_DIR}/generated/pkgconfig.pc.in" @ONLY)
+
+if(BUILD_SHARED_LIBS)
+    set(adder_export_file "adder-targets-shared.cmake")
+    set(adder_pkgconfig_suffix "")
+else()
+    set(adder_export_file "adder-targets-static.cmake")
+    set(adder_pkgconfig_suffix "-static")
+endif()
+
 set(adder_export_targets "")
 
 add_library(adder_adder)
@@ -42,6 +52,17 @@ set_target_properties(adder_adder
         SOVERSION "${PROJECT_VERSION_MAJOR}"
         VERSION "${PROJECT_VERSION}"
 )
+target_compile_definitions(
+    adder_adder
+        INTERFACE
+            "$<$<BOOL:${BUILD_SHARED_LIBS}>:ADDER_SHARED_LIBRARY>"
+)
+
+file(GENERATE
+    OUTPUT "${PROJECT_BINARY_DIR}/pkgconfig/adder${adder_pkgconfig_suffix}$<$<NOT:$<CONFIG:Release>>:-$<STRING:TOLOWER,$<CONFIG>>>.pc"
+    INPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/pkgconfig.pc.in"
+    TARGET adder_adder
+)
 
 add_executable(adder_adder_add_test
     src/add_test.c
@@ -63,12 +84,6 @@ endif()
 
 if(adder_BUILD_TESTING)
     add_subdirectory(tests)
-endif()
-
-if(BUILD_SHARED_LIBS)
-    set(adder_export_file "adder-targets-shared.cmake")
-else()
-    set(adder_export_file "adder-targets-static.cmake")
 endif()
 
 export(
@@ -121,5 +136,10 @@ if(adder_ENABLE_INSTALL)
         FILES
             "${PROJECT_SOURCE_DIR}/cmake/AdderPrintInfo.cmake"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder/cmake"
+    )
+    install(
+        FILES
+            "${PROJECT_BINARY_DIR}/pkgconfig/adder${adder_pkgconfig_suffix}$<$<NOT:$<CONFIG:Release>>:-$<STRING:TOLOWER,$<CONFIG>>>.pc"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
     )
 endif()

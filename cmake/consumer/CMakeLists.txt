@@ -30,17 +30,17 @@ add_test(
     NAME consumer
     COMMAND consumer
 )
+
 if(WIN32 AND BUILD_SHARED_LIBS)
     set_property(TEST consumer PROPERTY
         ENVIRONMENT_MODIFICATION
-            "PATH=path_list_append:$<TARGET_FILE_DIR:adder::adder>"
+            "$<LIST:TRANSFORM,$<TARGET_RUNTIME_DLL_DIRS:consumer>,PREPEND,PATH=path_list_append:>"
     )
+endif()
+
+if(consumer_DISABLE_TEST)
+    set_tests_properties(consumer PROPERTIES DISABLED TRUE)
 endif()
 
 include(AdderPrintInfo)
 adder_print_info()
-
-add_custom_target(consumer_print_adder_libs ALL
-    COMMAND "${CMAKE_COMMAND}" -E echo "<TARGET_FILE:adder::adder>        = $<TARGET_FILE:adder::adder>"
-    COMMAND "${CMAKE_COMMAND}" -E echo "<TARGET_LINKER_FILE:adder::adder> = $<TARGET_LINKER_FILE:adder::adder>"
-)
