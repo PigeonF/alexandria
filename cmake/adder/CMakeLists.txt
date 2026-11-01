@@ -14,14 +14,6 @@ include(GNUInstallDirs)
 
 enable_testing()
 
-if(BUILD_SHARED_LIBS)
-    set(adder_export_suffix "_shared")
-    set(adder_export_file "adder-targets-shared.cmake")
-else()
-    set(adder_export_suffix "_static")
-    set(adder_export_file "adder-targets-static.cmake")
-endif()
-
 add_library(adder_adder)
 add_library(adder::adder ALIAS adder_adder)
 target_sources(adder_adder
@@ -38,7 +30,7 @@ target_sources(adder_adder
 set_target_properties(adder_adder
     PROPERTIES
         DEFINE_SYMBOL ADDER_BUILD_SHARED_LIBRARY
-        EXPORT_NAME "adder${adder_export_suffix}"
+        EXPORT_NAME adder
         IMPORT_SUFFIX "${CMAKE_SHARED_LIBRARY_SUFFIX}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
         OUTPUT_NAME adder
         SOVERSION "${PROJECT_VERSION_MAJOR}"
@@ -65,6 +57,12 @@ install(
     EXPORT adder-targets
     FILE_SET HEADERS
 )
+
+if(BUILD_SHARED_LIBS)
+    set(adder_export_file "adder-targets-shared.cmake")
+else()
+    set(adder_export_file "adder-targets-static.cmake")
+endif()
 
 install(
     EXPORT adder-targets

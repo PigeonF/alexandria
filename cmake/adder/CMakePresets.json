@@ -4,7 +4,10 @@
         {
             "name": "default",
             "cacheVariables": {
-                "CMAKE_EXPORT_COMPILE_COMMANDS": true
+                "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+                "CMAKE_DEBUG_POSTFIX": "d",
+                "CMAKE_RELEASE_POSTFIX": "",
+                "CMAKE_RELWITHDEBINFO_POSTFIX": "rd"
             }
         }
     ],
