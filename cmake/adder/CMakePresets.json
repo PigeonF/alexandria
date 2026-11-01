@@ -3,6 +3,7 @@
     "configurePresets": [
         {
             "name": "default",
+            "generator": "Ninja Multi-Config",
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": true,
                 "CMAKE_DEBUG_POSTFIX": "d",
@@ -21,6 +22,25 @@
         {
             "name": "default",
             "configurePreset": "default"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "default",
+            "steps": [
+                {
+                    "name": "default",
+                    "type": "configure"
+                },
+                {
+                    "name": "default",
+                    "type": "build"
+                },
+                {
+                    "name": "default",
+                    "type": "test"
+                }
+            ]
         }
     ]
 }

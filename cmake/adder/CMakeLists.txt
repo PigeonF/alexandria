@@ -9,13 +9,19 @@ project(
     SPDX_LICENSE "Apache-2.0 OR MIT"
 )
 
+option(adder_ENABLE_INSTALL "Install adder" "${PROJECT_IS_TOP_LEVEL}")
+option(adder_BUILD_TESTING "Build adder tests" "${PROJECT_IS_TOP_LEVEL}")
+
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 enable_testing()
 
+set(adder_export_targets "")
+
 add_library(adder_adder)
 add_library(adder::adder ALIAS adder_adder)
+list(APPEND adder_export_targets "adder_adder")
 target_sources(adder_adder
     PRIVATE
         src/add.c
@@ -44,19 +50,20 @@ target_link_libraries(adder_adder_add_test
     PUBLIC
         adder::adder
 )
-add_test(
-    NAME adder::adder::add
-    COMMAND adder_adder_add_test
+set_target_properties(adder_adder_add_test
+    PROPERTIES
+        EXCLUDE_FROM_ALL "$<NOT:$<BOOL:adder_BUILD_TESTING>>"
 )
+if(adder_BUILD_TESTING)
+    add_test(
+        NAME adder::adder::add
+        COMMAND adder_adder_add_test
+    )
+endif()
 
-add_subdirectory(tests)
-
-install(
-    TARGETS
-        adder_adder
-    EXPORT adder-targets
-    FILE_SET HEADERS
-)
+if(adder_BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 if(BUILD_SHARED_LIBS)
     set(adder_export_file "adder-targets-shared.cmake")
@@ -64,14 +71,8 @@ else()
     set(adder_export_file "adder-targets-static.cmake")
 endif()
 
-install(
-    EXPORT adder-targets
-    NAMESPACE adder::
-    FILE "${adder_export_file}"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder"
-)
 export(
-    EXPORT adder-targets
+    TARGETS ${adder_export_targets}
     NAMESPACE adder::
     FILE "${adder_export_file}"
 )
@@ -86,29 +87,39 @@ configure_package_config_file(
     "${PROJECT_BINARY_DIR}/adder-config.cmake"
     INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder"
 )
-install(
-    FILES "${PROJECT_BINARY_DIR}/adder-config.cmake"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder"
-)
 
 write_basic_package_version_file(
     "${PROJECT_BINARY_DIR}/adder-config-version.cmake"
     COMPATIBILITY SemanticVersion
 )
-install(
-    FILES "${PROJECT_BINARY_DIR}/adder-config-version.cmake"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder"
-)
 
-set(ADDER_EXTRA_CMAKE_DIR "\${CMAKE_CURRENT_FUNCTION_LIST_DIR}/cmake")
-configure_file(cmake/adder-extra.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/generated/adder-extra.cmake" @ONLY)
-install(
-    FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/generated/adder-extra.cmake"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder"
-)
-install(
-    FILES
-        "${PROJECT_SOURCE_DIR}/cmake/AdderPrintInfo.cmake"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder/cmake"
-)
+if(adder_ENABLE_INSTALL)
+    install(
+        TARGETS ${adder_export_targets}
+        EXPORT adder-targets
+        FILE_SET HEADERS
+    )
+
+    install(
+        EXPORT adder-targets
+        NAMESPACE adder::
+        FILE "${adder_export_file}"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder"
+    )
+
+    set(ADDER_EXTRA_CMAKE_DIR "\${CMAKE_CURRENT_FUNCTION_LIST_DIR}/cmake")
+    configure_file(cmake/adder-extra.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/generated/adder-extra.cmake" @ONLY)
+
+    install(
+        FILES
+            "${PROJECT_BINARY_DIR}/adder-config.cmake"
+            "${PROJECT_BINARY_DIR}/adder-config-version.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/generated/adder-extra.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder"
+    )
+    install(
+        FILES
+            "${PROJECT_SOURCE_DIR}/cmake/AdderPrintInfo.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/adder/cmake"
+    )
+endif()
