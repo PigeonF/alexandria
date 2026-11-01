@@ -2,7 +2,10 @@
     "version": 12,
     "configurePresets": [
         {
-            "name": "default"
+            "name": "default",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": true
+            }
         }
     ],
     "buildPresets": [
