@@ -1,0 +1,15 @@
+function(adder_setup)
+    if(adder_setup_done)
+        return()
+    endif()
+
+    set(adder_setup_done TRUE)
+
+    set(adder_extra_cmake_dir "@ADDER_EXTRA_CMAKE_DIR@")
+
+    if(NOT "${adder_extra_cmake_dir}" IN_LIST CMAKE_MODULE_PATH)
+        list(APPEND CMAKE_MODULE_PATH "${adder_extra_cmake_dir}")
+    endif()
+
+    return(PROPAGATE adder_setup_done CMAKE_MODULE_PATH)
+endfunction()

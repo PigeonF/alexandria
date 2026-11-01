@@ -8,4 +8,7 @@ void test_2_2() {
   }
 }
 
-int main(int argc, const char *argv[]) { test_2_2(); }
+int main(int argc, const char *argv[]) {
+  test_2_2();
+  return EXIT_SUCCESS;
+}
